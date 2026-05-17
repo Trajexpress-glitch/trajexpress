@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conditions d'utilisation — Trajexpress</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  body { background: var(--bg); }
+  .legal-page {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 40px 32px 80px;
+  }
+  .legal-hero {
+    padding: 28px 0 24px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 36px;
+  }
+  .legal-hero h1 {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 44px;
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    margin: 14px 0 10px;
+    color: var(--blue-deep);
+  }
+  .legal-hero h1 em { color: var(--red-deep); font-style: italic; }
+  .legal-hero p {
+    color: var(--ink-2);
+    margin: 0;
+    font-size: 15px;
+    max-width: 620px;
+  }
+  .legal-meta {
+    display: flex;
+    gap: 18px;
+    margin-top: 14px;
+    color: var(--ink-3);
+    font-size: 13px;
+  }
+  .legal-meta b { color: var(--ink-2); }
+
+  /* ---- Table of contents ---- */
+  .toc {
+    background: var(--bg-soft);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    margin-bottom: 32px;
+  }
+  .toc-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 10px;
+  }
+  .toc-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 24px;
+  }
+  .toc-list a {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 4px 0;
+    color: var(--ink-2);
+    font-size: 13px;
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .toc-list a:hover { color: var(--blue-deep); }
+  .toc-list a .n {
+    font-family: var(--font-mono);
+    color: var(--red);
+    font-weight: 700;
+    font-size: 11px;
+    min-width: 18px;
+  }
+
+  /* ---- Sections ---- */
+  .legal-section {
+    margin-bottom: 28px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--line);
+    scroll-margin-top: 24px;
+  }
+  .legal-section:last-of-type { border-bottom: none; }
+  .legal-section h2 {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 22px;
+    color: var(--blue-deep);
+    margin: 0 0 12px;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .legal-section h2 .num {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--red);
+    background: var(--red-soft);
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-weight: 700;
+    position: relative;
+    top: -2px;
+    min-width: 28px;
+    text-align: center;
+  }
+  .legal-section p {
+    color: var(--ink-2);
+    line-height: 1.7;
+    font-size: 15px;
+    margin: 0 0 10px;
+  }
+  .legal-section p:last-child { margin-bottom: 0; }
+
+  .nav-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--blue-deep);
+    font-weight: 600;
+    font-size: 14px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    background: white;
+    border: 1px solid var(--line);
+  }
+  .nav-back:hover { background: var(--bg-soft); }
+
+  .brand-line {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: 18px;
+    letter-spacing: -0.01em;
+    color: var(--blue-deep);
+  }
+  .brand-mark {
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue) 50%, var(--red) 50%, var(--red) 100%);
+    position: relative;
+  }
+  .brand-mark::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: white;
+    clip-path: polygon(15% 60%, 50% 25%, 85% 60%, 85% 70%, 50% 35%, 15% 70%);
+  }
+
+  .footer-strip {
+    margin-top: 50px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--ink-3);
+    font-size: 13px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .footer-strip a {
+    color: var(--blue-deep);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .footer-strip a:hover { text-decoration: underline; }
+
+  @media (max-width: 600px) {
+    .toc-list { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="legal-page">
+  <a href="Trajexpress.html" class="nav-back">← Retour au site Trajexpress</a>
+
+  <header class="legal-hero">
+    <div class="brand-line"><div class="brand-mark"></div>Trajexpress</div>
+    <h1>Conditions <em>d'utilisation</em></h1>
+    <p>En utilisant Trajexpress, vous acceptez les conditions suivantes. Elles définissent le cadre dans lequel la plateforme met en relation chauffeurs et voyageurs au Québec.</p>
+    <div class="legal-meta">
+      <span>En vigueur : <b>17 mai 2026</b></span>
+      <span>·</span>
+      <span>Version <b>1.0</b></span>
+    </div>
+  </header>
+
+  <nav class="toc">
+    <div class="toc-title">Sommaire</div>
+    <div class="toc-list">
+      <a href="#s1"><span class="n">01</span>Présentation du service</a>
+      <a href="#s2"><span class="n">02</span>Rôle de Trajexpress</a>
+      <a href="#s3"><span class="n">03</span>Paiement</a>
+      <a href="#s4"><span class="n">04</span>Responsabilité</a>
+      <a href="#s5"><span class="n">05</span>Obligations des chauffeurs</a>
+      <a href="#s6"><span class="n">06</span>Obligations des passagers</a>
+      <a href="#s7"><span class="n">07</span>Comportement interdit</a>
+      <a href="#s8"><span class="n">08</span>Compte utilisateur</a>
+      <a href="#s9"><span class="n">09</span>Protection des données</a>
+      <a href="#s10"><span class="n">10</span>Modification</a>
+      <a href="#s11"><span class="n">11</span>Droit applicable</a>
+    </div>
+  </nav>
+
+  <section class="legal-section" id="s1">
+    <h2><span class="num">01</span>Présentation du service</h2>
+    <p>Trajexpress est une plateforme en ligne permettant de mettre en relation des conducteurs et des passagers pour des services de covoiturage.</p>
+    <p>Trajexpress agit uniquement en tant qu'intermédiaire technique et ne fournit aucun service de transport.</p>
+  </section>
+
+  <section class="legal-section" id="s2">
+    <h2><span class="num">02</span>Rôle de Trajexpress</h2>
+    <p>Trajexpress ne transporte pas de passagers, n'emploie pas de chauffeurs et n'est pas responsable des trajets.</p>
+    <p>Les utilisateurs sont seuls responsables des arrangements conclus entre eux.</p>
+  </section>
+
+  <section class="legal-section" id="s3">
+    <h2><span class="num">03</span>Paiement</h2>
+    <p>Les paiements des trajets sont effectués directement entre passagers et chauffeurs et ne transitent pas par la plateforme.</p>
+    <p>Trajexpress peut facturer des frais d'inscription et des frais de service aux chauffeurs.</p>
+  </section>
+
+  <section class="legal-section" id="s4">
+    <h2><span class="num">04</span>Responsabilité</h2>
+    <p>Trajexpress ne peut être tenu responsable des incidents, retards, annulations ou dommages survenus lors des trajets.</p>
+  </section>
+
+  <section class="legal-section" id="s5">
+    <h2><span class="num">05</span>Obligations des chauffeurs</h2>
+    <p>Les chauffeurs doivent posséder un permis valide, un véhicule assuré et respecter les lois en vigueur.</p>
+  </section>
+
+  <section class="legal-section" id="s6">
+    <h2><span class="num">06</span>Obligations des passagers</h2>
+    <p>Les passagers doivent fournir des informations exactes et adopter un comportement respectueux.</p>
+  </section>
+
+  <section class="legal-section" id="s7">
+    <h2><span class="num">07</span>Comportement interdit</h2>
+    <p>Il est interdit d'utiliser la plateforme à des fins illégales ou de fournir de fausses informations.</p>
+  </section>
+
+  <section class="legal-section" id="s8">
+    <h2><span class="num">08</span>Compte utilisateur</h2>
+    <p>Chaque utilisateur est responsable de son compte et de la sécurité de ses informations.</p>
+  </section>
+
+  <section class="legal-section" id="s9">
+    <h2><span class="num">09</span>Protection des données</h2>
+    <p>Les données sont utilisées uniquement pour le fonctionnement du service.</p>
+  </section>
+
+  <section class="legal-section" id="s10">
+    <h2><span class="num">10</span>Modification</h2>
+    <p>Trajexpress peut modifier ces conditions à tout moment.</p>
+  </section>
+
+  <section class="legal-section" id="s11">
+    <h2><span class="num">11</span>Droit applicable</h2>
+    <p>Ces conditions sont régies par les lois du Québec et du Canada.</p>
+  </section>
+
+  <div class="footer-strip">
+    <span>© 2026 Trajexpress · Québec, QC</span>
+    <span>Voir aussi : <a href="Confidentialité.html">Politique de confidentialité</a></span>
+  </div>
+</div>
+</body>
+</html>
