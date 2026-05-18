@@ -28,19 +28,19 @@ const Auth = ({ mode, navigate, setCurrentUser, showToast }) => {
             <h2 style={{ fontFamily: "var(--font-serif)", fontWeight: 500, fontSize: 28, color: "var(--blue-deep)", margin: "0 0 22px" }}>Connexion</h2>
             <div className="field">
               <label className="label">Courriel</label>
-              <input className="input" placeholder="vous@exemple.qc" defaultValue="lea.tremblay@exemple.qc" />
+              <input className="input" type="email" placeholder="vous@exemple.qc" />
             </div>
             <div className="field">
               <label className="label">Mot de passe</label>
-              <input className="input" type="password" defaultValue="••••••••••" />
+              <input className="input" type="password" placeholder="••••••••" />
             </div>
             <div className="row-between" style={{ marginBottom: 18 }}>
               <label className="checkbox-row"><input type="checkbox" /> Rester connecté</label>
               <a href="#" className="small" style={{ color: "var(--blue-deep)" }}>Mot de passe oublié ?</a>
             </div>
             <button className="btn btn-primary btn-block btn-lg" onClick={() => {
-              setCurrentUser({ name: "Léa Tremblay", initials: "LT", type: "traveler" });
-              showToast("Bienvenue, Léa !");
+              setCurrentUser({ name: "Voyageur Trajexpress", initials: "VT", type: "traveler" });
+              showToast("Connexion réussie");
               navigate("home");
             }}>Se connecter</button>
             <div className="text-c muted small" style={{ marginTop: 16 }}>
@@ -169,7 +169,7 @@ const Auth = ({ mode, navigate, setCurrentUser, showToast }) => {
                     </ul>
                   </div>
                   <button className="btn btn-red btn-block btn-lg" onClick={() => {
-                    setCurrentUser({ name: `${form.firstName || "Marc-André"} ${form.lastName || "T."}`, initials: `${(form.firstName[0] || "M")}${(form.lastName[0] || "T")}`.toUpperCase(), type: "driver" });
+                    setCurrentUser({ name: `${form.firstName} ${form.lastName}`.trim() || "Nouveau chauffeur", initials: `${(form.firstName[0] || "C")}${(form.lastName[0] || "")}`.toUpperCase(), type: "driver" });
                     showToast("Compte chauffeur créé !");
                     navigate("dashboard");
                   }}>Finaliser mon compte chauffeur</button>
@@ -182,24 +182,42 @@ const Auth = ({ mode, navigate, setCurrentUser, showToast }) => {
                     <div className="price-row total"><span>Total aujourd'hui</span><b>3,00 $</b></div>
                   </div>
                   <div className="field">
-                    <label className="label">Numéro de carte</label>
-                    <input className="input" value={form.card} onChange={(e) => setForm({ ...form, card: e.target.value })} placeholder="4242 4242 4242 4242" />
+                    <div className="card-soft" style={{ display: "flex", gap: 14, alignItems: "center", padding: 18 }}>
+                      <div style={{ width: 48, height: 48, borderRadius: 12, background: "white", border: "1px solid var(--line)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M14 4l8 4v6c0 5-3 8-8 9-5-1-8-4-8-9V8l8-4z" stroke="var(--blue-deep)" strokeWidth="1.8" fill="none" strokeLinejoin="round"/><path d="M10 14l3 3 5-6" stroke="var(--green)" strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 700, color: "var(--ink)" }}>Paiement sécurisé par Stripe</div>
+                        <div className="small" style={{ color: "var(--ink-2)", marginTop: 2 }}>
+                          Vous serez redirigé vers une page sécurisée Stripe pour entrer votre carte. Vos données bancaires ne transitent jamais par Trajexpress.
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="field-row">
-                    <div className="field"><label className="label">Expiration</label><input className="input" value={form.exp} onChange={(e) => setForm({ ...form, exp: e.target.value })} placeholder="MM/AA" /></div>
-                    <div className="field"><label className="label">CVV</label><input className="input" value={form.cvv} onChange={(e) => setForm({ ...form, cvv: e.target.value })} placeholder="123" /></div>
-                  </div>
-                  <div className="notice notice-blue" style={{ display: "flex", gap: 10 }}>
-                    <Icon name="lock" size={16} color="var(--blue-deep)" />
-                    <span>Paiement sécurisé. Vos données de carte ne sont jamais stockées sur nos serveurs.</span>
+                  <div className="field" style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 10 }}>
+                    <span className="small muted">Cartes acceptées :</span>
+                    <span className="pill" style={{ background: "white", border: "1px solid var(--line)", fontFamily: "var(--font-mono)", fontSize: 11 }}>VISA</span>
+                    <span className="pill" style={{ background: "white", border: "1px solid var(--line)", fontFamily: "var(--font-mono)", fontSize: 11 }}>Mastercard</span>
+                    <span className="pill" style={{ background: "white", border: "1px solid var(--line)", fontFamily: "var(--font-mono)", fontSize: 11 }}>Amex</span>
+                    <span className="pill" style={{ background: "white", border: "1px solid var(--line)", fontFamily: "var(--font-mono)", fontSize: 11 }}>Apple Pay</span>
+                    <span className="pill" style={{ background: "white", border: "1px solid var(--line)", fontFamily: "var(--font-mono)", fontSize: 11 }}>Google Pay</span>
                   </div>
                   <div className="row-gap" style={{ marginTop: 12 }}>
                     <button className="btn btn-ghost" onClick={() => setStep(2)}>← Retour</button>
                     <button className="btn btn-primary btn-block btn-lg" onClick={() => {
-                      setCurrentUser({ name: `${form.firstName || "Léa"} ${form.lastName || "Tremblay"}`, initials: `${(form.firstName[0] || "L")}${(form.lastName[0] || "T")}`.toUpperCase(), type: "traveler" });
-                      showToast("Inscription réussie · 3 $ encaissés");
-                      navigate("home");
-                    }}>Payer 3 $ et continuer</button>
+                      // 1. Créer le compte localement (sera valid é par le webhook Stripe en production)
+                      setCurrentUser({ name: `${form.firstName} ${form.lastName}`.trim() || "Nouveau voyageur", initials: `${(form.firstName[0] || "V")}${(form.lastName[0] || "")}`.toUpperCase(), type: "traveler" });
+                      // 2. Rediriger vers Stripe pour encaisser le 3 $
+                      const link = window.TJX_DATA.STRIPE_LINKS.voyageur;
+                      const url = new URL(link);
+                      if (form.email) url.searchParams.set("prefilled_email", form.email);
+                      showToast("Redirection vers le paiement sécurisé Stripe…");
+                      setTimeout(() => { window.location.href = url.toString(); }, 800);
+                    }}>Payer 3 $ avec Stripe →</button>
+                  </div>
+                  <div className="small muted text-c" style={{ marginTop: 10, display: "flex", justifyContent: "center", gap: 6, alignItems: "center" }}>
+                    <Icon name="lock" size={11} color="var(--ink-3)" />
+                    Paiement traité par Stripe · cartes Visa, Mastercard, Amex, Apple Pay
                   </div>
                 </>
               )}

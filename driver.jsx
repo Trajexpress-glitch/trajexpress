@@ -28,16 +28,16 @@ const DriverHub = ({ navigate, currentUser, postedTrips, addTrip, showToast }) =
       <div className="dash-grid">
         <aside className="dash-sidebar">
           <button className={`dash-link ${tab === "overview" ? "active" : ""}`} onClick={() => setTab("overview")}><Icon name="grid" size={16} /> Vue d'ensemble</button>
-          <button className={`dash-link ${tab === "trips" ? "active" : ""}`} onClick={() => setTab("trips")}><Icon name="car" size={16} /> Mes trajets <span className="pill pill-blue" style={{ marginLeft: "auto", padding: "1px 8px" }}>{postedTrips.length + 3}</span></button>
+          <button className={`dash-link ${tab === "trips" ? "active" : ""}`} onClick={() => setTab("trips")}><Icon name="car" size={16} /> Mes trajets <span className="pill pill-blue" style={{ marginLeft: "auto", padding: "1px 8px" }}>{postedTrips.length}</span></button>
           <button className={`dash-link ${tab === "post" ? "active" : ""}`} onClick={() => setTab("post")}><Icon name="plus" size={16} /> Publier un trajet</button>
           <button className={`dash-link ${tab === "earnings" ? "active" : ""}`} onClick={() => setTab("earnings")}><Icon name="money" size={16} /> Revenus</button>
-          <button className={`dash-link ${tab === "messages" ? "active" : ""}`} onClick={() => setTab("messages")}><Icon name="chat" size={16} /> Messages <span className="pill pill-red" style={{ marginLeft: "auto", padding: "1px 8px" }}>2</span></button>
+          <button className={`dash-link ${tab === "messages" ? "active" : ""}`} onClick={() => setTab("messages")}><Icon name="chat" size={16} /> Messages</button>
           <button className={`dash-link ${tab === "profile" ? "active" : ""}`} onClick={() => setTab("profile")}><Icon name="user" size={16} /> Profil</button>
         </aside>
 
         <main>
           {tab === "overview" && <DriverOverview postedTrips={postedTrips} setTab={setTab} />}
-          {tab === "trips" && <DriverTrips postedTrips={postedTrips} />}
+          {tab === "trips" && <DriverTrips postedTrips={postedTrips} setTab={setTab} />}
           {tab === "post" && <PostTrip addTrip={addTrip} setTab={setTab} showToast={showToast} />}
           {tab === "earnings" && <DriverEarnings postedTrips={postedTrips} />}
           {tab === "messages" && <DriverMessages />}
@@ -48,97 +48,104 @@ const DriverHub = ({ navigate, currentUser, postedTrips, addTrip, showToast }) =
   );
 };
 
-const DriverOverview = ({ postedTrips, setTab }) => (
+const DriverOverview = ({ postedTrips, setTab }) => {
+  const seatsPublished = postedTrips.reduce((s, t) => s + (t.seats || 0), 0);
+  const feesPaid = seatsPublished * 2;
+  const potentialRevenue = postedTrips.reduce((s, t) => s + (t.price || 0) * (t.seats || 0), 0);
+  const isEmpty = postedTrips.length === 0;
+
+  return (
   <>
     <div className="dash-stats">
       <div className="stat-card">
-        <div className="label-stat">À recevoir cette semaine</div>
-        <div className="val">240 $</div>
-        <div className="sub">8 voyageurs confirmés</div>
+        <div className="label-stat">Trajets publiés</div>
+        <div className="val">{postedTrips.length}</div>
+        <div className="sub">{isEmpty ? "à venir" : "sur Trajexpress"}</div>
       </div>
       <div className="stat-card accent">
         <div className="label-stat">Frais Trajexpress payés</div>
-        <div className="val">14 $</div>
-        <div className="sub">7 places publiées</div>
+        <div className="val">{feesPaid} $</div>
+        <div className="sub">{seatsPublished} siège(s) publié(s)</div>
+      </div>
+      <div className="stat-card">
+        <div className="label-stat">Revenu potentiel</div>
+        <div className="val">{potentialRevenue} $</div>
+        <div className="sub">si trajets complets</div>
       </div>
       <div className="stat-card">
         <div className="label-stat">Note moyenne</div>
-        <div className="val">4,9 ★</div>
-        <div className="sub">142 trajets</div>
-      </div>
-      <div className="stat-card">
-        <div className="label-stat">Taux de remplissage</div>
-        <div className="val">87 %</div>
-        <div className="sub">+ 6 % vs. mois dernier</div>
+        <div className="val">—</div>
+        <div className="sub">après vos premiers trajets</div>
       </div>
     </div>
 
     <div className="card" style={{ marginBottom: 16 }}>
       <div className="row-between" style={{ marginBottom: 16 }}>
         <h3 style={{ margin: 0, fontFamily: "var(--font-serif)", fontWeight: 500, color: "var(--blue-deep)" }}>Vos prochains trajets</h3>
-        <button className="btn btn-text" onClick={() => setTab("trips")}>Voir tout →</button>
+        {!isEmpty && <button className="btn btn-text" onClick={() => setTab("trips")}>Voir tout →</button>}
       </div>
-      {[
-        { date: "Demain · 06:15", from: "Québec", to: "Montréal", booked: 3, total: 4, earn: 84 },
-        { date: "Ven. 20 mai · 14:00", from: "Québec", to: "Sherbrooke", booked: 1, total: 3, earn: 35 },
-        { date: "Sam. 21 mai · 09:30", from: "Québec", to: "Trois-Rivières", booked: 4, total: 4, earn: 72 }
-      ].map((t, i) => (
+      {isEmpty ? (
+        <div className="text-c" style={{ padding: "30px 20px" }}>
+          <div style={{ fontSize: 15, color: "var(--ink-2)", marginBottom: 14 }}>Aucun trajet publié pour l'instant.</div>
+          <button className="btn btn-red" onClick={() => setTab("post")}><Icon name="plus" size={13} color="white" /> Publier mon premier trajet</button>
+        </div>
+      ) : postedTrips.map((t, i) => (
         <div key={i} className="row-between" style={{ padding: "14px 0", borderTop: i ? "1px solid var(--line)" : "none" }}>
           <div>
             <div style={{ fontWeight: 700 }}>{t.from} <span style={{ color: "var(--red)" }}>→</span> {t.to}</div>
-            <div className="small muted">{t.date}</div>
+            <div className="small muted">{t.date} · {t.time}</div>
           </div>
           <div className="row-gap">
-            <div className="pill pill-blue">{t.booked}/{t.total} sièges</div>
-            <div style={{ fontFamily: "var(--font-serif)", fontSize: 22, color: "var(--blue-deep)", minWidth: 70, textAlign: "right" }}>{t.earn} $</div>
+            <div className="pill pill-blue">0/{t.seats} sièges</div>
+            <div style={{ fontFamily: "var(--font-serif)", fontSize: 22, color: "var(--blue-deep)", minWidth: 70, textAlign: "right" }}>{(t.price * t.seats)} $</div>
           </div>
         </div>
       ))}
     </div>
 
     <div className="card">
-      <h3 style={{ margin: "0 0 16px", fontFamily: "var(--font-serif)", fontWeight: 500, color: "var(--blue-deep)" }}>Revenus encaissés (7 derniers jours)</h3>
-      <div className="chart">
-        {[120, 84, 0, 56, 168, 240, 96].map((v, i) => (
-          <div key={i} className="bar" style={{ height: `${(v / 240) * 100 + 4}%` }}>
-            <div className="bar-label">{["L","M","M","J","V","S","D"][i]}</div>
-          </div>
-        ))}
+      <h3 style={{ margin: "0 0 16px", fontFamily: "var(--font-serif)", fontWeight: 500, color: "var(--blue-deep)" }}>Revenus encaissés</h3>
+      <div className="chart" style={{ alignItems: "center", justifyContent: "center", color: "var(--ink-3)", fontStyle: "italic", fontSize: 14 }}>
+        Le graphique apparaîtra après vos premiers trajets terminés.
       </div>
-      <div className="row-between" style={{ marginTop: 32 }}>
+      <div className="row-between" style={{ marginTop: 24 }}>
         <span className="muted small">Total semaine</span>
-        <span style={{ fontFamily: "var(--font-serif)", fontSize: 24, color: "var(--blue-deep)", fontWeight: 500 }}>764 $</span>
+        <span style={{ fontFamily: "var(--font-serif)", fontSize: 24, color: "var(--blue-deep)", fontWeight: 500 }}>—</span>
       </div>
     </div>
   </>
-);
+  );
+};
 
-const DriverTrips = ({ postedTrips }) => {
-  const allTrips = [
-    ...postedTrips.map(t => ({ ...t, status: "Publié" })),
-    { id: "TJX-2041", from: "Québec", to: "Montréal", date: "18 mai 06:15", seats: "3/4", price: 28, status: "Publié" },
-    { id: "TJX-2034", from: "Québec", to: "Sherbrooke", date: "12 mai 14:00", seats: "3/3", price: 35, status: "Terminé" },
-    { id: "TJX-2028", from: "Québec", to: "Montréal", date: "08 mai 06:15", seats: "4/4", price: 28, status: "Terminé" }
-  ];
+const DriverTrips = ({ postedTrips, setTab }) => {
   return (
     <div className="card" style={{ padding: 0 }}>
-      <div style={{ padding: "18px 22px" }}><h3 style={{ margin: 0, fontFamily: "var(--font-serif)", fontWeight: 500, color: "var(--blue-deep)" }}>Mes trajets</h3></div>
+      <div style={{ padding: "18px 22px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h3 style={{ margin: 0, fontFamily: "var(--font-serif)", fontWeight: 500, color: "var(--blue-deep)" }}>Mes trajets</h3>
+        {postedTrips.length > 0 && <button className="btn btn-red" onClick={() => setTab("post")}><Icon name="plus" size={13} color="white" /> Nouveau</button>}
+      </div>
       <table className="table">
         <thead>
           <tr><th>ID</th><th>Itinéraire</th><th>Départ</th><th>Sièges</th><th>Prix</th><th>État</th><th></th></tr>
         </thead>
         <tbody>
-          {allTrips.map((t, i) => (
+          {postedTrips.map((t, i) => (
             <tr key={i}>
               <td style={{ fontFamily: "var(--font-mono)", fontSize: 12 }}>{t.id}</td>
               <td><b style={{ color: "var(--ink)" }}>{t.from}</b> → {t.to}</td>
-              <td>{t.date}</td>
-              <td>{t.seats}</td>
+              <td>{t.date} · {t.time}</td>
+              <td>0/{t.seats}</td>
               <td><b style={{ color: "var(--blue-deep)" }}>{t.price} $</b></td>
-              <td><span className={`pill ${t.status === "Publié" ? "pill-blue" : "pill"}`}>{t.status}</span></td>
+              <td><span className="pill pill-blue">Publié</span></td>
               <td><button className="btn btn-text" style={{ padding: 6 }}>Modifier</button></td>
             </tr>
           ))}
+          {postedTrips.length === 0 && (
+            <tr><td colSpan="7" className="text-c" style={{ padding: "50px 14px" }}>
+              <div style={{ color: "var(--ink-2)", marginBottom: 14, fontStyle: "italic" }}>Vous n'avez encore publié aucun trajet.</div>
+              <button className="btn btn-red" onClick={() => setTab("post")}><Icon name="plus" size={13} color="white" /> Publier mon premier trajet</button>
+            </td></tr>
+          )}
         </tbody>
       </table>
     </div>
@@ -151,9 +158,12 @@ const PostTrip = ({ addTrip, setTab, showToast }) => {
   const fee = t.seats * 2;
 
   const publish = () => {
+    // 1. Sauvegarde locale du trajet (sera confirm  ée par le webhook Stripe en production)
     addTrip({ id: `TJX-${Math.floor(2050 + Math.random() * 50)}`, ...t });
-    showToast(`Trajet publié · ${fee} $ prélevés`);
-    setTab("trips");
+    // 2. Redirection vers Stripe pour encaisser les frais (2 $ × nombre de sièges)
+    const link = window.TJX_DATA.STRIPE_LINKS.chauffeur;
+    showToast(`Redirection vers Stripe · ${fee.toFixed(2)} $ pour ${t.seats} siège(s)…`);
+    setTimeout(() => { window.location.href = link; }, 800);
   };
 
   return (
@@ -224,77 +234,65 @@ const PostTrip = ({ addTrip, setTab, showToast }) => {
         </div>
       </div>
 
-      <div className="row-gap" style={{ marginTop: 18 }}>
+      <div className="notice notice-blue" style={{ marginTop: 14, display: "flex", gap: 10, alignItems: "flex-start" }}>
+        <Icon name="lock" size={16} color="var(--blue-deep)" />
+        <div>
+          <b>Paiement par Stripe.</b> Vous serez redirigé vers une page sécurisée pour régler les <b>{fee.toFixed(2)} $</b> de frais Trajexpress. Sur la page Stripe, confirmez bien la quantité de <b>{t.seats} siège(s)</b>.
+        </div>
+      </div>
+
+      <div className="row-gap" style={{ marginTop: 14 }}>
         <button className="btn btn-ghost" onClick={() => setTab("overview")}>Annuler</button>
-        <button className="btn btn-red btn-block btn-lg" onClick={publish}>Payer {fee.toFixed(2)} $ et publier le trajet</button>
+        <button className="btn btn-red btn-block btn-lg" onClick={publish}>Payer {fee.toFixed(2)} $ avec Stripe →</button>
       </div>
     </div>
   );
 };
 
-const DriverEarnings = ({ postedTrips }) => (
+const DriverEarnings = ({ postedTrips }) => {
+  const seatsPublished = postedTrips.reduce((s, t) => s + (t.seats || 0), 0);
+  const feesPaid = seatsPublished * 2;
+  return (
   <>
     <div className="dash-stats" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
       <div className="stat-card">
         <div className="label-stat">Encaissé ce mois</div>
-        <div className="val">3 248 $</div>
-        <div className="sub">+ 18 % vs. avril</div>
+        <div className="val">—</div>
+        <div className="sub">Payé directement par les voyageurs</div>
       </div>
       <div className="stat-card">
         <div className="label-stat">Frais Trajexpress payés</div>
-        <div className="val" style={{ color: "var(--red-deep)" }}>54 $</div>
-        <div className="sub">27 sièges publiés</div>
+        <div className="val" style={{ color: "var(--red-deep)" }}>{feesPaid} $</div>
+        <div className="sub">{seatsPublished} siège(s) publié(s)</div>
       </div>
       <div className="stat-card">
         <div className="label-stat">Revenu net</div>
-        <div className="val">3 194 $</div>
-        <div className="sub">98,3 % de l'encaissé</div>
+        <div className="val">—</div>
+        <div className="sub">après vos premières courses</div>
       </div>
     </div>
     <div className="card">
       <h3 style={{ margin: "0 0 16px", fontFamily: "var(--font-serif)", fontWeight: 500, color: "var(--blue-deep)" }}>Historique des paiements</h3>
-      <table className="table">
-        <thead><tr><th>Trajet</th><th>Date</th><th>Voyageurs</th><th>Encaissé</th><th>Frais TJX</th></tr></thead>
-        <tbody>
-          {[
-            { id: "TJX-2034", date: "12 mai", route: "QC → Sherbrooke", pax: 3, gain: 105, fee: 6 },
-            { id: "TJX-2028", date: "08 mai", route: "QC → Montréal", pax: 4, gain: 112, fee: 8 },
-            { id: "TJX-2020", date: "05 mai", route: "QC → Trois-Rivières", pax: 4, gain: 72, fee: 8 },
-            { id: "TJX-2014", date: "02 mai", route: "QC → Saguenay", pax: 2, gain: 64, fee: 8 }
-          ].map(r => (
-            <tr key={r.id}>
-              <td style={{ fontFamily: "var(--font-mono)", fontSize: 12 }}>{r.id}</td>
-              <td>{r.date}</td>
-              <td>{r.route} · {r.pax} pers.</td>
-              <td><b style={{ color: "var(--blue-deep)" }}>+ {r.gain} $</b></td>
-              <td><span style={{ color: "var(--red-deep)" }}>− {r.fee} $</span></td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="notice notice-blue" style={{ marginBottom: 14 }}>
+        <b>Comment fonctionnent vos revenus</b>
+        Les frais de course sont remis en main propre par les voyageurs à l'arrivée (comptant ou Interac). Trajexpress n'est pas dans le circuit — nous ne facturons que les <b>2 $ par siège publié</b>.
+      </div>
+      <div className="text-c" style={{ padding: "30px 14px", color: "var(--ink-3)", fontStyle: "italic" }}>Aucun trajet terminé pour le moment. L'historique apparaîtra ici après vos premières courses.</div>
     </div>
   </>
-);
+  );
+};
 
 const DriverMessages = () => (
   <div className="card">
     <h3 style={{ margin: "0 0 16px", fontFamily: "var(--font-serif)", fontWeight: 500, color: "var(--blue-deep)" }}>Messages</h3>
-    {[
-      { name: "Léa T.", msg: "Bonjour ! Possible de me prendre au pont de Québec ?", time: "il y a 14 min", unread: true },
-      { name: "Hugo C.", msg: "Parfait, je serai 5 min en avance demain matin.", time: "il y a 1 h", unread: true },
-      { name: "Anaïs R.", msg: "Merci pour le trajet, super rencontre !", time: "Hier" }
-    ].map((m, i) => (
-      <div key={i} className="row-between" style={{ padding: "14px 0", borderTop: i ? "1px solid var(--line)" : "none" }}>
-        <div className="row-gap">
-          <div className="avatar">{m.name.split(" ").map(s => s[0]).join("")}</div>
-          <div>
-            <div style={{ fontWeight: 700 }}>{m.name} {m.unread && <span className="pill pill-red" style={{ marginLeft: 6, padding: "1px 8px" }}>nouveau</span>}</div>
-            <div className="small muted" style={{ marginTop: 2 }}>{m.msg}</div>
-          </div>
-        </div>
-        <div className="small muted">{m.time}</div>
+    <div className="text-c" style={{ padding: "50px 14px" }}>
+      <div style={{ display: "inline-flex", width: 48, height: 48, borderRadius: "50%", background: "var(--blue-tint)", alignItems: "center", justifyContent: "center", color: "var(--blue-deep)", marginBottom: 10 }}>
+        <Icon name="chat" size={20} color="var(--blue-deep)" />
       </div>
-    ))}
+      <div style={{ fontWeight: 700, color: "var(--ink)", marginBottom: 4 }}>Aucun message</div>
+      <div className="muted small">Les conversations avec vos voyageurs apparaîtront ici une fois vos trajets réservés.</div>
+    </div>
   </div>
 );
 
@@ -305,18 +303,17 @@ const DriverProfile = ({ currentUser }) => (
       <div className="avatar avatar-lg">{currentUser.initials}</div>
       <div>
         <div style={{ fontWeight: 700, fontSize: 18 }}>{currentUser.name}</div>
-        <div className="muted small"><span className="star">★</span> 4,9 — 142 trajets · Inscrit en janvier 2024</div>
+        <div className="muted small">Nouveau chauffeur sur Trajexpress · inscrit aujourd'hui</div>
         <div className="row-gap" style={{ marginTop: 8 }}>
-          <span className="pill pill-blue"><Icon name="shield" size={11} /> Vérifié</span>
-          <span className="pill pill-green">Permis valide</span>
+          <span className="pill pill-gold">En cours de vérification</span>
         </div>
       </div>
     </div>
     <div className="field-row">
-      <div className="field"><label className="label">Véhicule</label><input className="input" defaultValue="Toyota Corolla 2021" /></div>
-      <div className="field"><label className="label">Couleur</label><input className="input" defaultValue="Gris ardoise" /></div>
+      <div className="field"><label className="label">Véhicule</label><input className="input" placeholder="ex. Toyota Corolla 2021" /></div>
+      <div className="field"><label className="label">Couleur</label><input className="input" placeholder="ex. Gris ardoise" /></div>
     </div>
-    <div className="field"><label className="label">Présentation aux voyageurs</label><textarea className="textarea" defaultValue="Conducteur calme, ponctuel, trajet QC-MTL chaque semaine. Bagage et musique au choix." /></div>
+    <div className="field"><label className="label">Présentation aux voyageurs</label><textarea className="textarea" placeholder="Présentez-vous en quelques lignes : routes habituelles, style de conduite, préférences…"></textarea></div>
     <button className="btn btn-primary">Enregistrer</button>
   </div>
 );

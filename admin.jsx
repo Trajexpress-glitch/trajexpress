@@ -2,15 +2,24 @@
 const AdminLock = ({ onUnlock, showToast }) => {
   const [code, setCode] = React.useState("");
   const [err, setErr] = React.useState(false);
+  const [verifying, setVerifying] = React.useState(false);
 
-  const submit = (e) => {
+  // Hash du code saisi avec SHA-256, comparé au hash stocké (jamais le code en clair)
+  const submitCode = async (e) => {
     e.preventDefault();
-    if (code.trim().toUpperCase() === window.TJX_DATA.ADMIN_CODE) {
-      onUnlock();
-      showToast("Bienvenue dans l'espace propriétaire");
-    } else {
-      setErr(true);
-      setTimeout(() => setErr(false), 800);
+    setVerifying(true);
+    try {
+      const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(code.trim().toUpperCase()));
+      const hex = [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+      if (hex === window.TJX_DATA.ADMIN_CODE_HASH) {
+        onUnlock();
+        showToast("Bienvenue dans l'espace propriétaire");
+      } else {
+        setErr(true);
+        setTimeout(() => setErr(false), 800);
+      }
+    } finally {
+      setVerifying(false);
     }
   };
 
@@ -21,8 +30,8 @@ const AdminLock = ({ onUnlock, showToast }) => {
           <Icon name="lock" size={26} color="var(--blue-deep)" />
         </div>
         <h2>Espace propriétaire</h2>
-        <p>Cette section est réservée à l'administrateur de Trajexpress. Entrez votre code d'accès.</p>
-        <form onSubmit={submit}>
+        <p>Entrez votre code d'accès pour ouvrir le tableau de bord.</p>
+        <form onSubmit={submitCode}>
           <input
             className="input admin-code-input"
             value={code}
@@ -31,9 +40,14 @@ const AdminLock = ({ onUnlock, showToast }) => {
             style={{ borderColor: err ? "var(--red)" : undefined, animation: err ? "shake 0.4s" : undefined }}
             autoFocus
           />
-          <button className="btn btn-primary btn-block btn-lg" style={{ marginTop: 14 }} type="submit">Déverrouiller</button>
+          <button className="btn btn-primary btn-block btn-lg" style={{ marginTop: 14 }} type="submit" disabled={verifying}>
+            {verifying ? "Vérification…" : "Déverrouiller"}
+          </button>
         </form>
-        <div className="admin-hint">Code de démonstration : <b style={{ color: "var(--blue-deep)", fontFamily: "var(--font-mono)" }}>{window.TJX_DATA.ADMIN_CODE}</b></div>
+        <div className="admin-hint" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+          <Icon name="shield" size={11} color="var(--ink-3)" />
+          Accès strictement réservé à l'administrateur de Trajexpress.
+        </div>
       </div>
       <style>{`@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }`}</style>
     </div>
@@ -47,6 +61,8 @@ const AdminDashboard = ({ navigate, onLock }) => {
   const totalRev = ADMIN_TRANSACTIONS.reduce((s, t) => s + (t.status === "Encaissé" ? t.amount : 0), 0);
   const travRev = ADMIN_TRANSACTIONS.filter(t => t.type.includes("voyageur") && t.status === "Encaissé").reduce((s, t) => s + t.amount, 0);
   const driverRev = ADMIN_TRANSACTIONS.filter(t => t.type.includes("chauffeur") && t.status === "Encaissé").reduce((s, t) => s + t.amount, 0);
+  const isEmpty = ADMIN_TRANSACTIONS.length === 0;
+  const fmt = (n) => isEmpty ? "—" : `${n.toFixed(2)} $`;
 
   return (
     <div className="page">
@@ -90,23 +106,23 @@ const AdminDashboard = ({ navigate, onLock }) => {
           <div className="admin-stats">
             <div className="admin-stat">
               <div className="label-stat">Revenu total (mois)</div>
-              <div className="val">{totalRev.toFixed(2)} $</div>
-              <div className="trend">▲ + 22 % vs. avril</div>
+              <div className="val">{fmt(totalRev)}</div>
+              <div className="trend" style={{ color: "var(--ink-3)" }}>{isEmpty ? "En attente de la première transaction" : "▲ nouvelle période"}</div>
             </div>
             <div className="admin-stat">
               <div className="label-stat">Inscriptions voyageurs</div>
-              <div className="val">{travRev.toFixed(0)} $</div>
-              <div className="trend">{(travRev / 3).toFixed(0)} nouveaux comptes</div>
+              <div className="val">{fmt(travRev)}</div>
+              <div className="trend" style={{ color: "var(--ink-3)" }}>{travRev > 0 ? `${(travRev / 3).toFixed(0)} nouveaux comptes` : "Aucun pour le moment"}</div>
             </div>
             <div className="admin-stat red">
               <div className="label-stat">Places chauffeurs</div>
-              <div className="val">{driverRev.toFixed(0)} $</div>
-              <div className="trend">{(driverRev / 2).toFixed(0)} sièges publiés</div>
+              <div className="val">{fmt(driverRev)}</div>
+              <div className="trend" style={{ color: "var(--ink-3)" }}>{driverRev > 0 ? `${(driverRev / 2).toFixed(0)} sièges publiés` : "Aucune publication"}</div>
             </div>
             <div className="admin-stat">
-              <div className="label-stat">Utilisateurs actifs</div>
-              <div className="val">2 137</div>
-              <div className="trend">+ 84 cette semaine</div>
+              <div className="label-stat">Utilisateurs inscrits</div>
+              <div className="val">{ADMIN_USERS.length}</div>
+              <div className="trend" style={{ color: "var(--ink-3)" }}>{ADMIN_USERS.length > 0 ? "comptes actifs" : "En attente du premier inscrit"}</div>
             </div>
           </div>
 
@@ -119,18 +135,8 @@ const AdminDashboard = ({ navigate, onLock }) => {
                   <span className="row-gap"><span className="dot" style={{ background: "var(--red)" }}></span> Places</span>
                 </div>
               </div>
-              <div className="chart" style={{ height: 240 }}>
-                {[
-                  [12, 8], [9, 14], [15, 6], [21, 12], [18, 16], [6, 4], [3, 2],
-                  [24, 18], [27, 20], [21, 16], [33, 22], [30, 28], [9, 6], [12, 14]
-                ].map((v, i) => (
-                  <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2, justifyContent: "flex-end", position: "relative" }}>
-                    <div className="bar red" style={{ height: `${(v[1] / 40) * 100}%`, borderRadius: 0 }}></div>
-                    <div className="bar" style={{ height: `${(v[0] / 40) * 100}%`, borderRadius: "6px 6px 0 0" }}>
-                      {i % 2 === 0 && <div className="bar-label">{3 + i}</div>}
-                    </div>
-                  </div>
-                ))}
+              <div className="chart" style={{ height: 240, alignItems: "center", justifyContent: "center", color: "var(--ink-3)", fontSize: 14, fontStyle: "italic" }}>
+                {isEmpty ? "Le graphique apparaîtra dès la première transaction." : null}
               </div>
             </div>
             <div className="card">
@@ -138,24 +144,24 @@ const AdminDashboard = ({ navigate, onLock }) => {
               <div style={{ position: "relative", width: 180, height: 180, margin: "0 auto 14px" }}>
                 <svg viewBox="0 0 36 36" width="180" height="180">
                   <circle cx="18" cy="18" r="15.915" fill="none" stroke="var(--bg-soft)" strokeWidth="4" />
-                  <circle cx="18" cy="18" r="15.915" fill="none" stroke="var(--blue)" strokeWidth="4"
-                    strokeDasharray={`${(travRev / totalRev * 100).toFixed(1)} 100`} strokeDashoffset="25" transform="rotate(-90 18 18)" />
-                  <circle cx="18" cy="18" r="15.915" fill="none" stroke="var(--red)" strokeWidth="4"
+                  {!isEmpty && <circle cx="18" cy="18" r="15.915" fill="none" stroke="var(--blue)" strokeWidth="4"
+                    strokeDasharray={`${(travRev / totalRev * 100).toFixed(1)} 100`} strokeDashoffset="25" transform="rotate(-90 18 18)" />}
+                  {!isEmpty && <circle cx="18" cy="18" r="15.915" fill="none" stroke="var(--red)" strokeWidth="4"
                     strokeDasharray={`${(driverRev / totalRev * 100).toFixed(1)} 100`}
-                    strokeDashoffset={`${25 - (travRev / totalRev * 100)}`} transform="rotate(-90 18 18)" />
+                    strokeDashoffset={`${25 - (travRev / totalRev * 100)}`} transform="rotate(-90 18 18)" />}
                 </svg>
                 <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
                   <div className="muted small">Total mois</div>
-                  <div style={{ fontFamily: "var(--font-serif)", fontSize: 26, color: "var(--blue-deep)" }}>{totalRev.toFixed(0)} $</div>
+                  <div style={{ fontFamily: "var(--font-serif)", fontSize: 26, color: "var(--blue-deep)" }}>{isEmpty ? "—" : `${totalRev.toFixed(0)} $`}</div>
                 </div>
               </div>
               <div className="row-between small" style={{ marginBottom: 6 }}>
                 <span className="row-gap"><span className="dot" style={{ background: "var(--blue)" }}></span> Voyageurs (3 $)</span>
-                <b style={{ color: "var(--blue-deep)" }}>{travRev.toFixed(0)} $</b>
+                <b style={{ color: "var(--blue-deep)" }}>{fmt(travRev)}</b>
               </div>
               <div className="row-between small">
                 <span className="row-gap"><span className="dot" style={{ background: "var(--red)" }}></span> Chauffeurs (2 $/place)</span>
-                <b style={{ color: "var(--red-deep)" }}>{driverRev.toFixed(0)} $</b>
+                <b style={{ color: "var(--red-deep)" }}>{fmt(driverRev)}</b>
               </div>
             </div>
           </div>
@@ -178,6 +184,9 @@ const AdminDashboard = ({ navigate, onLock }) => {
                     <td><span className={`pill ${t.status === "Encaissé" ? "pill-green" : "pill-gold"}`}>{t.status}</span></td>
                   </tr>
                 ))}
+                {isEmpty && (
+                  <tr><td colSpan="6" className="text-c muted" style={{ padding: "32px 14px", fontStyle: "italic" }}>Aucune transaction pour l'instant. Les paiements apparaîtront ici en temps réel.</td></tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -189,18 +198,18 @@ const AdminDashboard = ({ navigate, onLock }) => {
           <div className="admin-stats" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
             <div className="admin-stat">
               <div className="label-stat">Encaissé ce mois</div>
-              <div className="val">{totalRev.toFixed(2)} $</div>
-              <div className="trend">▲ + 22 %</div>
+              <div className="val">{fmt(totalRev)}</div>
+              <div className="trend" style={{ color: "var(--ink-3)" }}>{isEmpty ? "première période" : "période en cours"}</div>
             </div>
             <div className="admin-stat">
               <div className="label-stat">En attente</div>
-              <div className="val">3,00 $</div>
-              <div className="trend" style={{ color: "var(--ink-3)" }}>1 transaction</div>
+              <div className="val">{fmt(ADMIN_TRANSACTIONS.filter(t => t.status !== "Encaissé").reduce((s, t) => s + t.amount, 0))}</div>
+              <div className="trend" style={{ color: "var(--ink-3)" }}>{ADMIN_TRANSACTIONS.filter(t => t.status !== "Encaissé").length} transaction(s)</div>
             </div>
             <div className="admin-stat red">
-              <div className="label-stat">Projeté fin de mois</div>
-              <div className="val">≈ 92 $</div>
-              <div className="trend">basé sur la tendance</div>
+              <div className="label-stat">Trajets actifs</div>
+              <div className="val">{TRIPS_SEED.length}</div>
+              <div className="trend" style={{ color: "var(--ink-3)" }}>publiés par les chauffeurs</div>
             </div>
           </div>
           <div className="card">
@@ -224,6 +233,9 @@ const AdminDashboard = ({ navigate, onLock }) => {
                     <td><span className={`pill ${t.status === "Encaissé" ? "pill-green" : "pill-gold"}`}>{t.status}</span></td>
                   </tr>
                 ))}
+                {isEmpty && (
+                  <tr><td colSpan="6" className="text-c muted" style={{ padding: "40px 14px", fontStyle: "italic" }}>Aucune transaction enregistrée. Les paiements Stripe apparaîtront ici automatiquement.</td></tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -235,9 +247,9 @@ const AdminDashboard = ({ navigate, onLock }) => {
           <div className="row-between" style={{ marginBottom: 12 }}>
             <h3 style={{ margin: 0, fontFamily: "var(--font-serif)", fontWeight: 500, color: "var(--blue-deep)" }}>Utilisateurs inscrits</h3>
             <div className="row-gap small muted">
-              <span><b style={{ color: "var(--blue-deep)" }}>1 384</b> voyageurs</span>
+              <span><b style={{ color: "var(--blue-deep)" }}>{ADMIN_USERS.filter(u => u.role === "Voyageur").length}</b> voyageur(s)</span>
               <span>·</span>
-              <span><b style={{ color: "var(--red-deep)" }}>753</b> chauffeurs</span>
+              <span><b style={{ color: "var(--red-deep)" }}>{ADMIN_USERS.filter(u => u.role === "Chauffeur").length}</b> chauffeur(s)</span>
             </div>
           </div>
           <table className="table">
@@ -258,6 +270,9 @@ const AdminDashboard = ({ navigate, onLock }) => {
                   <td><button className="btn btn-text" style={{ padding: 6 }}>Voir</button></td>
                 </tr>
               ))}
+              {ADMIN_USERS.length === 0 && (
+                <tr><td colSpan="6" className="text-c muted" style={{ padding: "40px 14px", fontStyle: "italic" }}>Aucun utilisateur inscrit pour l'instant. Les nouveaux comptes apparaîtront ici.</td></tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -280,6 +295,9 @@ const AdminDashboard = ({ navigate, onLock }) => {
                   <td><b style={{ color: "var(--red-deep)" }}>{(t.totalSeats * 2).toFixed(2)} $</b></td>
                 </tr>
               ))}
+              {TRIPS_SEED.length === 0 && (
+                <tr><td colSpan="7" className="text-c muted" style={{ padding: "40px 14px", fontStyle: "italic" }}>Aucun trajet publié sur la plateforme pour le moment.</td></tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -308,12 +326,16 @@ const AdminDashboard = ({ navigate, onLock }) => {
           </div>
           <div className="divider"></div>
           <h3 style={{ margin: "0 0 14px", fontFamily: "var(--font-serif)", fontWeight: 500, color: "var(--blue-deep)" }}>Code d'accès propriétaire</h3>
-          <div className="field">
-            <label className="label">Code actuel</label>
-            <input className="input admin-code-input" defaultValue={window.TJX_DATA.ADMIN_CODE} style={{ fontSize: 16 }} />
-            <div className="help">Changez ce code régulièrement pour sécuriser l'accès au tableau de bord.</div>
+          <div className="notice notice-blue" style={{ marginBottom: 14 }}>
+            <b>Code stocké sous forme de hash SHA-256.</b>
+            La valeur en clair n'est plus présente nulle part dans le code source. En production, elle vit uniquement dans la variable d'environnement Vercel <span style={{ fontFamily: "var(--font-mono)", background: "white", padding: "1px 6px", borderRadius: 4 }}>ADMIN_ACCESS_CODE_HASH</span>.
           </div>
-          <button className="btn btn-primary">Enregistrer les modifications</button>
+          <div className="field">
+            <label className="label">Empreinte actuelle (hash)</label>
+            <input className="input" readOnly value={window.TJX_DATA.ADMIN_CODE_HASH.slice(0, 16) + "…" + window.TJX_DATA.ADMIN_CODE_HASH.slice(-8)} style={{ fontFamily: "var(--font-mono)", fontSize: 13 }} />
+            <div className="help">Cette empreinte ne permet pas de retrouver le code d'origine. Pour changer le code, générez-en un nouveau ci-dessous.</div>
+          </div>
+          <button className="btn btn-red" onClick={() => alert("En production : génère un nouveau code, l'envoie au courriel propriétaire, et révoque l'ancien.")}><Icon name="shield" size={13} color="white" /> Générer un nouveau code et l'envoyer par courriel</button>
         </div>
       )}
     </div>

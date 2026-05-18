@@ -93,7 +93,7 @@ const SearchPage = ({ navigate, searchQuery, setSearchQuery, openTrip }) => {
           <main>
             <div className="results-header">
               <h2>{trips.length} trajets <em>{q.from} → {q.to}</em></h2>
-              <div className="small muted">Lundi 18 mai 2026</div>
+              <div className="small muted">{new Date(q.date || Date.now()).toLocaleDateString("fr-CA", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</div>
             </div>
 
             {trips.length === 0 ? (

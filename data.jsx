@@ -1,117 +1,47 @@
-// Trajexpress — données mock partagées
+// Trajexpress — données partagées
+//
+// SÉCURITÉ : ce fichier est livré au navigateur. Aucune donnée sensible
+// (code propriétaire en clair, clés Stripe, mots de passe) ne doit y figurer.
+// En production sur Vercel, les vraies valeurs sont injectées via les
+// variables d'environnement (Project Settings → Environment Variables).
+
+// Liste des villes du Québec utilisée par les champs d'autocomplétion.
 const CITIES = [
   "Québec", "Montréal", "Lévis", "Trois-Rivières", "Sherbrooke",
   "Saguenay", "Gatineau", "Drummondville", "Saint-Hyacinthe",
   "Rivière-du-Loup", "Rimouski", "Victoriaville", "Sainte-Foy",
-  "Saint-Georges", "Beauport"
+  "Saint-Georges", "Beauport", "Sainte-Marie", "Saint-Elzéar",
+  "Sainte-Claire", "Granby"
 ];
 
-const TRIPS_SEED = [
-  {
-    id: "TJX-2041",
-    from: "Québec", fromAddr: "Gare du Palais, 450 rue de la Gare-du-Palais",
-    to: "Montréal", toAddr: "Gare d'autocars, 1717 rue Berri",
-    start: "06:15", end: "09:20", duration: "3h05",
-    date: "Lun. 18 mai",
-    price: 28, seats: 3, totalSeats: 4,
-    driver: { name: "Marc-André T.", initials: "MA", rating: 4.9, trips: 142, verified: true, year: 2021, car: "Toyota Corolla", color: "Gris ardoise" },
-    instant: true,
-    rules: { smoke: false, pets: true, music: true, talk: "Modéré" },
-    detour: "Lévis"
-  },
-  {
-    id: "TJX-2042",
-    from: "Québec", fromAddr: "Université Laval, Pavillon Desjardins",
-    to: "Montréal", toAddr: "UQAM, Pavillon Hubert-Aquin",
-    start: "07:30", end: "10:40", duration: "3h10",
-    date: "Lun. 18 mai",
-    price: 25, seats: 1, totalSeats: 3,
-    driver: { name: "Sophie L.", initials: "SL", rating: 4.8, trips: 87, verified: true, year: 2019, car: "Honda Civic", color: "Bleu nuit" },
-    instant: false,
-    rules: { smoke: false, pets: false, music: true, talk: "Bavard" },
-    detour: null
-  },
-  {
-    id: "TJX-2043",
-    from: "Québec", fromAddr: "Sainte-Foy, Place Laurier",
-    to: "Montréal", toAddr: "Centre-ville, Métro Bonaventure",
-    start: "08:45", end: "12:00", duration: "3h15",
-    date: "Lun. 18 mai",
-    price: 30, seats: 2, totalSeats: 3,
-    driver: { name: "David B.", initials: "DB", rating: 4.7, trips: 56, verified: true, year: 2022, car: "Mazda CX-5", color: "Blanc cristal" },
-    instant: true,
-    rules: { smoke: false, pets: false, music: true, talk: "Au choix" },
-    detour: "Drummondville"
-  },
-  {
-    id: "TJX-2044",
-    from: "Québec", fromAddr: "Beauport, Galeries de la Capitale",
-    to: "Trois-Rivières", toAddr: "Centre-ville, Place de l'Hôtel-de-Ville",
-    start: "10:00", end: "11:35", duration: "1h35",
-    date: "Lun. 18 mai",
-    price: 18, seats: 4, totalSeats: 4,
-    driver: { name: "Émilie R.", initials: "ER", rating: 5.0, trips: 213, verified: true, year: 2020, car: "Subaru Outback", color: "Vert forêt" },
-    instant: true,
-    rules: { smoke: false, pets: true, music: true, talk: "Bavard" },
-    detour: null
-  },
-  {
-    id: "TJX-2045",
-    from: "Québec", fromAddr: "Lévis, Terminus de la traverse",
-    to: "Sherbrooke", toAddr: "Université de Sherbrooke",
-    start: "14:00", end: "17:30", duration: "3h30",
-    date: "Lun. 18 mai",
-    price: 35, seats: 1, totalSeats: 3,
-    driver: { name: "Jean-François P.", initials: "JF", rating: 4.6, trips: 41, verified: true, year: 2018, car: "Hyundai Elantra", color: "Argent" },
-    instant: false,
-    rules: { smoke: false, pets: false, music: false, talk: "Silencieux" },
-    detour: "Drummondville"
-  },
-  {
-    id: "TJX-2046",
-    from: "Québec", fromAddr: "Charlesbourg, IGA Henri-Bourassa",
-    to: "Saguenay", toAddr: "Chicoutimi, Place du Royaume",
-    start: "16:30", end: "18:55", duration: "2h25",
-    date: "Lun. 18 mai",
-    price: 32, seats: 2, totalSeats: 4,
-    driver: { name: "Pierre-Olivier M.", initials: "PO", rating: 4.9, trips: 178, verified: true, year: 2023, car: "Tesla Model 3", color: "Rouge multicouches" },
-    instant: true,
-    rules: { smoke: false, pets: true, music: true, talk: "Au choix" },
-    detour: null
-  }
-];
+// État initial — aucun trajet, aucune transaction, aucun utilisateur.
+// Ces tableaux se rempliront en production via Supabase au fil des inscriptions.
+const TRIPS_SEED = [];
+const POPULAR_ROUTES = [];
+const ADMIN_TRANSACTIONS = [];
+const ADMIN_USERS = [];
 
-const POPULAR_ROUTES = [
-  { from: "Québec", to: "Montréal", trips: 24, price: 25 },
-  { from: "Québec", to: "Trois-Rivières", trips: 14, price: 15 },
-  { from: "Québec", to: "Sherbrooke", trips: 8, price: 32 },
-  { from: "Québec", to: "Saguenay", trips: 11, price: 28 },
-  { from: "Lévis", to: "Montréal", trips: 9, price: 25 },
-  { from: "Québec", to: "Gatineau", trips: 5, price: 45 },
-  { from: "Québec", to: "Rimouski", trips: 6, price: 38 },
-  { from: "Sherbrooke", to: "Montréal", trips: 12, price: 18 }
-];
+// Code d'accès propriétaire — stocké uniquement sous forme de hash SHA-256.
+// La valeur réelle n'apparaît JAMAIS dans le code source.
+// Sur Vercel : la variable d'environnement ADMIN_ACCESS_CODE_HASH remplace celle-ci
+// au moment du build (process.env.ADMIN_ACCESS_CODE_HASH).
+const ADMIN_CODE_HASH = "a5bc0a7b308e0de884e8bb7098bca19522b7a9d28b908a6cf2ed6fb95680d0b7";
 
-const ADMIN_CODE = "QC-2026-TRAJ";
+// Liens Stripe Payment Links — à remplacer par vos vrais liens depuis votre tableau de bord Stripe.
+// Voir : Guide PaymentLinks.html pour les étapes (5 minutes).
+const STRIPE_LINKS = {
+  // Inscription voyageur — 3 $ CAD une seule fois
+  voyageur: "https://buy.stripe.com/dRmfZiclY0LocUb3Xaasg01",
+  // Publication de trajet — 2 $ CAD par siège (quantité ajustable sur Stripe)
+  chauffeur: "https://buy.stripe.com/00w00kgCefGicUb2T6asg00"
+};
 
-const ADMIN_TRANSACTIONS = [
-  { id: "TX-9821", date: "16 mai 2026", type: "Inscription voyageur", user: "Léa Tremblay", amount: 3.00, status: "Encaissé" },
-  { id: "TX-9820", date: "16 mai 2026", type: "Places chauffeur ×4", user: "Marc-André T.", amount: 8.00, status: "Encaissé" },
-  { id: "TX-9819", date: "16 mai 2026", type: "Inscription voyageur", user: "Hugo Côté", amount: 3.00, status: "Encaissé" },
-  { id: "TX-9818", date: "15 mai 2026", type: "Places chauffeur ×3", user: "Sophie L.", amount: 6.00, status: "Encaissé" },
-  { id: "TX-9817", date: "15 mai 2026", type: "Inscription voyageur", user: "Anaïs Roy", amount: 3.00, status: "Encaissé" },
-  { id: "TX-9816", date: "15 mai 2026", type: "Places chauffeur ×4", user: "Émilie R.", amount: 8.00, status: "Encaissé" },
-  { id: "TX-9815", date: "15 mai 2026", type: "Inscription voyageur", user: "Olivier G.", amount: 3.00, status: "En attente" },
-  { id: "TX-9814", date: "14 mai 2026", type: "Places chauffeur ×3", user: "David B.", amount: 6.00, status: "Encaissé" }
-];
-
-const ADMIN_USERS = [
-  { name: "Marc-André T.", role: "Chauffeur", trips: 142, since: "Jan 2024", status: "Actif" },
-  { name: "Léa Tremblay", role: "Voyageur", trips: 12, since: "Mai 2026", status: "Actif" },
-  { name: "Sophie L.", role: "Chauffeur", trips: 87, since: "Mar 2024", status: "Actif" },
-  { name: "Hugo Côté", role: "Voyageur", trips: 3, since: "Mai 2026", status: "Actif" },
-  { name: "Émilie R.", role: "Chauffeur", trips: 213, since: "Sep 2023", status: "Vérifié★" },
-  { name: "Olivier G.", role: "Voyageur", trips: 0, since: "Mai 2026", status: "En attente" }
-];
-
-window.TJX_DATA = { CITIES, TRIPS_SEED, POPULAR_ROUTES, ADMIN_CODE, ADMIN_TRANSACTIONS, ADMIN_USERS };
+window.TJX_DATA = {
+  CITIES,
+  TRIPS_SEED,
+  POPULAR_ROUTES,
+  ADMIN_TRANSACTIONS,
+  ADMIN_USERS,
+  ADMIN_CODE_HASH,
+  STRIPE_LINKS
+};
