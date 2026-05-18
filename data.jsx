@@ -1,5 +1,11 @@
 // Trajexpress — données partagées
 //
+// Connexion à Supabase
+const SUPABASE_URL = "https://VOTRE-PROJET.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOi...";
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+window.supabaseClient = supabase;
+
 // SÉCURITÉ : ce fichier est livré au navigateur. Aucune donnée sensible
 // (code propriétaire en clair, clés Stripe, mots de passe) ne doit y figurer.
 // En production sur Vercel, les vraies valeurs sont injectées via les
