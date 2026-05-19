@@ -1,8 +1,8 @@
 // Trajexpress — données partagées
 //
 // Connexion à Supabase
-const SUPABASE_URL = "https://VOTRE-PROJET.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOi...";
+const SUPABASE_URL = "https://vlbnsyoomioonuhtwbry.supabase.co/rest/v1/";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsYm5zeW9vbWlvb251aHR3YnJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNjY4ODcsImV4cCI6MjA5NDY0Mjg4N30.4ssL_0Q0eNYxAv3mGPtsJbioNAhU34m8zzHj4VJgllk";
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 window.supabaseClient = supabase;
 
