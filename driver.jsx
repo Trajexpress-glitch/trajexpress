@@ -1,17 +1,7 @@
 // Trajexpress — Espace chauffeur (tableau de bord + publication)
 const DriverHub = ({ navigate, currentUser, postedTrips, addTrip, showToast }) => {
   const [tab, setTab] = React.useState("overview");
-const { error } = await window.supabaseClient
-  .from("trips")
-  .insert({
-    driver_id: currentUser.id,
-    from_city: t.from,
-    to_city: t.to,
-    departure: `${t.date}T${t.time}`,
-    price_per_seat: t.price,
-    seats_total: t.seats,
-    stripe_paid: false
-  });
+
   if (!currentUser || currentUser.type !== "driver") {
     return (
       <div className="page">

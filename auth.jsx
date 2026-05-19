@@ -1,14 +1,5 @@
 // Trajexpress — Auth (inscription / connexion)
 const Auth = ({ mode, navigate, setCurrentUser, showToast }) => {
-  const { data, error } = await window.supabaseClient.auth.signUp({
-  email: form.email,
-  password: form.password,
-  options: { data: { full_name: `${form.firstName} ${form.lastName}` } }
-});
-if (error) { showToast(error.message); return; }
-
-// Puis rediriger vers Stripe pour le paiement de 3 $
-window.location.href = window.TJX_DATA.STRIPE_LINKS.voyageur;
   const [tab, setTab] = React.useState(mode === "signin" ? "signin" : "signup");
   const [role, setRole] = React.useState("traveler");
   const [step, setStep] = React.useState(1);
