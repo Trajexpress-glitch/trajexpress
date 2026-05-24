@@ -12,6 +12,7 @@ const ROUTES = {
   about:     "/comment-ca-marche",
   dashboard: "/tableau-de-bord",
   pricing:   "/tarification",
+  messages:  "/messages",
   admin:     "/espace-proprietaire"
 };
 
@@ -26,6 +27,7 @@ function App() {
   const [route, setRoute] = useState(() => hashToRoute(window.location.hash));
   const [searchQuery, setSearchQuery] = useState({ from: "Québec", to: "Montréal", date: "2026-05-18", passengers: 1 });
   const [activeTrip, setActiveTrip] = useState(null);
+  const [openConvId, setOpenConvId] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [postedTrips, setPostedTrips] = useState([]);
   const [bookings, setBookings] = useState([]);
@@ -53,6 +55,7 @@ function App() {
       about: "Comment ça marche — Trajexpress",
       dashboard: "Mon tableau de bord — Trajexpress",
       pricing: "Tarification — Trajexpress",
+      messages: "Messages — Trajexpress",
       admin: "Espace propriétaire — Trajexpress"
     };
     document.title = titles[route] || "Trajexpress";
@@ -68,6 +71,7 @@ function App() {
     }
   };
   const openTrip = (t) => { setActiveTrip(t); navigate("detail"); };
+  const openMessages = (convId) => { setOpenConvId(convId); navigate("messages"); };
   const showToast = (msg) => setToast(msg);
   const addTrip = (t) => setPostedTrips([t, ...postedTrips]);
   const addBooking = (b) => setBookings([b, ...bookings]);
@@ -78,13 +82,14 @@ function App() {
 
       {route === "home" && <Home navigate={navigate} setSearchQuery={setSearchQuery} searchQuery={searchQuery} currentUser={currentUser} />}
       {route === "pricing" && <PricingPage navigate={navigate} currentUser={currentUser} />}
+      {route === "messages" && <Messages navigate={navigate} currentUser={currentUser} openConvId={openConvId} />}
       {route === "search" && <SearchPage navigate={navigate} searchQuery={searchQuery} setSearchQuery={setSearchQuery} openTrip={openTrip} />}
-      {route === "detail" && <TripDetail trip={activeTrip} navigate={navigate} currentUser={currentUser} addBooking={addBooking} showToast={showToast} />}
+      {route === "detail" && <TripDetail trip={activeTrip} navigate={navigate} currentUser={currentUser} addBooking={addBooking} showToast={showToast} openMessages={openMessages} />}
       {route === "signup" && <Auth mode="signup" navigate={navigate} setCurrentUser={setCurrentUser} showToast={showToast} />}
       {route === "signin" && <Auth mode="signin" navigate={navigate} setCurrentUser={setCurrentUser} showToast={showToast} />}
       {route === "driver" && <DriverInfo navigate={navigate} currentUser={currentUser} />}
       {route === "about" && <DriverInfo navigate={navigate} currentUser={currentUser} />}
-      {route === "dashboard" && <DriverHub navigate={navigate} currentUser={currentUser} postedTrips={postedTrips} addTrip={addTrip} showToast={showToast} />}
+      {route === "dashboard" && <DriverHub navigate={navigate} currentUser={currentUser} postedTrips={postedTrips} addTrip={addTrip} showToast={showToast} openMessages={openMessages} />}
       {route === "admin" && <AdminPage navigate={navigate} showToast={showToast} />}
 
       <Footer navigate={navigate} />

@@ -1,5 +1,5 @@
 // Trajexpress — Espace chauffeur (tableau de bord + publication)
-const DriverHub = ({ navigate, currentUser, postedTrips, addTrip, showToast }) => {
+const DriverHub = ({ navigate, currentUser, postedTrips, addTrip, showToast, openMessages }) => {
   const [tab, setTab] = React.useState("overview");
 
   if (!currentUser || currentUser.type !== "driver") {
@@ -31,7 +31,7 @@ const DriverHub = ({ navigate, currentUser, postedTrips, addTrip, showToast }) =
           <button className={`dash-link ${tab === "trips" ? "active" : ""}`} onClick={() => setTab("trips")}><Icon name="car" size={16} /> Mes trajets <span className="pill pill-blue" style={{ marginLeft: "auto", padding: "1px 8px" }}>{postedTrips.length}</span></button>
           <button className={`dash-link ${tab === "post" ? "active" : ""}`} onClick={() => setTab("post")}><Icon name="plus" size={16} /> Publier un trajet</button>
           <button className={`dash-link ${tab === "earnings" ? "active" : ""}`} onClick={() => setTab("earnings")}><Icon name="money" size={16} /> Revenus</button>
-          <button className={`dash-link ${tab === "messages" ? "active" : ""}`} onClick={() => setTab("messages")}><Icon name="chat" size={16} /> Messages</button>
+          <button className={`dash-link ${tab === "messages" ? "active" : ""}`} onClick={() => navigate("messages")}><Icon name="chat" size={16} /> Messages</button>
           <button className={`dash-link ${tab === "profile" ? "active" : ""}`} onClick={() => setTab("profile")}><Icon name="user" size={16} /> Profil</button>
         </aside>
 

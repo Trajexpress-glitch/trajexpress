@@ -143,7 +143,7 @@ const SearchPage = ({ navigate, searchQuery, setSearchQuery, openTrip }) => {
   );
 };
 
-const TripDetail = ({ trip, navigate, currentUser, addBooking, showToast }) => {
+const TripDetail = ({ trip, navigate, currentUser, addBooking, showToast, openMessages }) => {
   const [seats, setSeats] = React.useState(1);
   const [confirmed, setConfirmed] = React.useState(false);
 
@@ -206,7 +206,11 @@ const TripDetail = ({ trip, navigate, currentUser, addBooking, showToast }) => {
                   {trip.driver.car} ({trip.driver.year}) · {trip.driver.color}
                 </div>
               </div>
-              <button className="btn btn-ghost"><Icon name="chat" size={14} /> Contacter</button>
+              <button className="btn btn-ghost" onClick={() => {
+                if (!currentUser) { showToast("Connectez-vous pour discuter avec le chauffeur"); navigate("signup"); return; }
+                const convId = window.startConversation(trip.driver, trip);
+                openMessages && openMessages(convId);
+              }}><Icon name="chat" size={14} /> Contacter</button>
             </div>
           </div>
 

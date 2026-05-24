@@ -41,7 +41,10 @@ const Header = ({ route, navigate, currentUser }) => {
     { id: "driver", label: "Devenir chauffeur" },
     { id: "about", label: "Comment ça marche" }
   ];
-  const memberLinks = currentUser ? [{ id: "pricing", label: "Tarification" }] : [];
+  const memberLinks = currentUser ? [
+    { id: "messages", label: "Messages" },
+    { id: "pricing", label: "Tarification" }
+  ] : [];
   return (
     <header className="header">
       <div className="header-inner">
