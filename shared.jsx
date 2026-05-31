@@ -35,6 +35,7 @@ const Brand = () => (
 );
 
 const Header = ({ route, navigate, currentUser }) => {
+  const [menuOpen, setMenuOpen] = React.useState(false);
   const links = [
     { id: "home", label: "Accueil" },
     { id: "search", label: "Rechercher" },
@@ -45,34 +46,85 @@ const Header = ({ route, navigate, currentUser }) => {
     { id: "messages", label: "Messages" },
     { id: "pricing", label: "Tarification" }
   ] : [];
+
+  const go = (id) => { setMenuOpen(false); navigate(id); };
+
   return (
     <header className="header">
       <div className="header-inner">
-        <button onClick={() => navigate("home")} style={{ padding: 0 }}><Brand /></button>
-        <nav className="nav">
+        <button onClick={() => go("home")} style={{ padding: 0 }}><Brand /></button>
+
+        {/* Navigation bureau */}
+        <nav className="nav nav-desktop">
           {links.map(l => (
             <button key={l.id}
               className={`nav-link ${route === l.id || (l.id === "search" && route === "detail") ? "active" : ""}`}
-              onClick={() => navigate(l.id)}>{l.label}</button>
+              onClick={() => go(l.id)}>{l.label}</button>
           ))}
           {memberLinks.map(l => (
             <button key={l.id}
               className={`nav-link ${route === l.id ? "active" : ""}`}
-              onClick={() => navigate(l.id)}>{l.label}</button>
+              onClick={() => go(l.id)}>{l.label}</button>
           ))}
           {currentUser ? (
-            <button className="btn btn-ghost" onClick={() => navigate(currentUser.type === "driver" ? "dashboard" : "search")}>
+            <button className="btn btn-ghost" onClick={() => go(currentUser.type === "driver" ? "dashboard" : "search")}>
               <div className="avatar" style={{ width: 28, height: 28, fontSize: 11 }}>{currentUser.initials}</div>
               {currentUser.name.split(" ")[0]}
             </button>
           ) : (
             <>
-              <button className="btn btn-ghost" onClick={() => navigate("signin")}>Connexion</button>
-              <button className="btn btn-primary" onClick={() => navigate("signup")}>S'inscrire</button>
+              <button className="btn btn-ghost" onClick={() => go("signin")}>Connexion</button>
+              <button className="btn btn-primary" onClick={() => go("signup")}>S'inscrire</button>
             </>
           )}
         </nav>
+
+        {/* Bouton menu mobile */}
+        <button className="nav-burger" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">
+          <span className={`burger-icon ${menuOpen ? "open" : ""}`}>
+            <span></span><span></span><span></span>
+          </span>
+        </button>
       </div>
+
+      {/* Panneau mobile déroulant */}
+      {menuOpen && <div className="nav-overlay" onClick={() => setMenuOpen(false)}></div>}
+      <nav className={`nav-mobile ${menuOpen ? "open" : ""}`}>
+        {currentUser && (
+          <div className="nav-mobile-user">
+            <div className="avatar avatar-lg">{currentUser.initials}</div>
+            <div>
+              <div style={{ fontWeight: 700 }}>{currentUser.name}</div>
+              <div className="small muted">{currentUser.type === "driver" ? "Compte chauffeur" : "Compte voyageur"}</div>
+            </div>
+          </div>
+        )}
+        {links.map(l => (
+          <button key={l.id}
+            className={`nav-mobile-link ${route === l.id || (l.id === "search" && route === "detail") ? "active" : ""}`}
+            onClick={() => go(l.id)}>{l.label}</button>
+        ))}
+        {memberLinks.map(l => (
+          <button key={l.id}
+            className={`nav-mobile-link ${route === l.id ? "active" : ""}`}
+            onClick={() => go(l.id)}>{l.label}</button>
+        ))}
+        {currentUser ? (
+          <>
+            {currentUser.type === "driver" && (
+              <button className="nav-mobile-link" onClick={() => go("dashboard")}>Mon tableau de bord</button>
+            )}
+            <button className="btn btn-primary btn-block btn-lg" style={{ marginTop: 12 }} onClick={() => go(currentUser.type === "driver" ? "dashboard" : "search")}>
+              {currentUser.type === "driver" ? "Publier un trajet" : "Trouver un trajet"}
+            </button>
+          </>
+        ) : (
+          <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
+            <button className="btn btn-ghost btn-block btn-lg" onClick={() => go("signin")}>Connexion</button>
+            <button className="btn btn-primary btn-block btn-lg" onClick={() => go("signup")}>S'inscrire</button>
+          </div>
+        )}
+      </nav>
     </header>
   );
 };
